@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .salah-col { color: red; font-weight: bold; }
+        #dashboard { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="loginArea">
+    <h2>Login Guru</h2>
+    <input type="password" id="passwordInput" placeholder="Masukkan Password">
+    <button onclick="cekLogin()">Masuk</button>
+</div>
+
+<div class="container" id="dashboard">
+    <h2>Rekap Hasil Pengerjaan Siswa</h2>
+    <button onclick="muatData()">Refresh Data</button>
+    <table id="tabelNilai">
+        <thead>
+            <tr>
+                <th>Waktu</th>
+                <th>Nama Siswa</th>
+                <th>Paket</th>
+                <th>Nilai</th>
+                <th>Soal yang Salah (Evaluasi)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    const scriptURL = 'URL_APPS_SCRIPT_BOS_YANG_BARU'; 
+    const passwordGuru = 'kopi123'; 
+
+    function cekLogin() {
+        const input = document.getElementById('passwordInput').value;
+        if (input === passwordGuru) {
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            muatData(); 
+        } else {
+            alert('Password salah, Bos!');
+        }
+    }
+
+    function muatData() {
+        const tbody = document.querySelector('#tabelNilai tbody');
+        tbody.innerHTML = '<tr><td colspan="5">Memuat data...</td></tr>';
+
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                tbody.innerHTML = ''; 
+                for (let i = 1; i < data.length; i++) {
+                    let baris = data[i];
+                    let tanggal = new Date(baris[0]).toLocaleString('id-ID');
+                    let soalSalah = baris[4] ? baris[4] : '-';
+                    
+                    let tr = `<tr>
+                        <td>${tanggal}</td>
+                        <td>${baris[1]}</td>
+                        <td>${baris[2]}</td>
+                        <td>${baris[3]}</td>
+                        <td class="salah-col">${soalSalah}</td>
+                    </tr>`;
+                    tbody.innerHTML += tr;
+                }
+            })
+            .catch(error => {
+                tbody.innerHTML = '<tr><td colspan="5">Gagal memuat data.</td></tr>';
+            });
+    }
+</script>
+</body>
+</html>
