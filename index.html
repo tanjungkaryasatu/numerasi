@@ -104,14 +104,23 @@
             <h1 class="text-3xl font-bold text-blue-600 mb-2">Kerja Bagus, <span id="result-name"></span>!</h1>
             <p class="text-gray-600 mb-6 text-lg">Kamu telah menyelesaikan latihan hari ini.</p>
             
-            <div class="bg-blue-50 rounded-2xl p-6 mb-8 border-2 border-blue-100">
+            <div class="bg-blue-50 rounded-2xl p-6 mb-4 border-2 border-blue-100">
                 <p class="text-gray-500 font-bold mb-2">SKOR KAMU</p>
                 <div class="text-6xl font-extrabold text-green-500" id="result-score">100</div>
+                <div class="flex justify-center gap-6 mt-4 pt-4 border-t border-blue-200 font-semibold text-gray-700">
+                    <div>✅ Benar: <span id="result-correct" class="text-green-600 font-bold">0</span></div>
+                    <div>❌ Salah: <span id="result-wrong" class="text-red-500 font-bold">0</span></div>
+                </div>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <!-- Status Rekap Google Sheets -->
+            <div id="sheets-status" class="mb-6 p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                <!-- Status otomatis diisi oleh JS -->
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onclick="showDiscussion()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold text-lg py-4 px-6 rounded-2xl shadow-md transition-all">
-                    Lihat Pembahasan 📖
+                    Pembahasan 📖
                 </button>
                 <button onclick="resetQuiz()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-md transition-all">
                     Latihan Lagi 🔄
@@ -124,19 +133,36 @@
     <div id="discussion-screen" class="hidden flex-1 flex flex-col p-4 md:p-8 max-w-4xl mx-auto w-full">
         <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-md mb-6 border-2 border-yellow-200">
             <h2 class="font-bold text-xl text-yellow-600">Pembahasan Latihan</h2>
-            <button onclick="showScreen('result-screen')" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors">
-                &larr; Kembali ke Skor
-            </button>
+            <div class="flex gap-2">
+                <button onclick="showScreen('result-screen')" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors">
+                    &larr; Skor
+                </button>
+                <button onclick="resetQuiz()" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors hidden sm:block">
+                    Keluar 🚪
+                </button>
+            </div>
         </div>
 
-        <div id="discussion-container" class="space-y-8 pb-10">
+        <div id="discussion-container" class="space-y-8 pb-6">
             <!-- Discussion items injected here -->
+        </div>
+
+        <div class="mt-4 mb-10 flex justify-center">
+            <button onclick="resetQuiz()" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg rounded-2xl shadow-md transition-all">
+                Selesai & Latihan Lagi 🔄
+            </button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // PENGATURAN GURU
+        // ==========================================
+        // Ganti teks di bawah dengan Web App URL dari Google Apps Script milik Bos
+        const GOOGLE_SHEETS_URL = "PASTE_URL_GOOGLE_APPS_SCRIPT_DI_SINI"; 
+        
         // Data Soal (Database)
-        const databaseSoal = {
+                const databaseSoal = {
             paket1: [
                 // PG
                 {
@@ -360,11 +386,13 @@
 
         let bankSoal = [];
 
+
         // State Variables
         let currentQuestionIndex = 0;
         let studentName = "";
         let selectedPackageId = "";
         let answers = {}; // { questionId: answerData }
+        let currentFinalScore = 0; // Tambahan untuk WA
 
         // Initialize App
         window.onload = function() {
@@ -643,24 +671,24 @@
 
         // Submit and Scoring
         function submitQuiz() {
-            let score = 0;
+            let correctCount = 0;
+            let wrongCount = 0;
             
             bankSoal.forEach(q => {
                 const ans = answers[q.id];
                 if (!ans) {
-                    q._isCorrect = false; // flag for discussion
+                    q._isCorrect = false;
+                    wrongCount++;
                     return; 
                 }
                 
                 if (q.type === 'pg') {
                     q._isCorrect = (ans === q.answer);
-                    if (q._isCorrect) score++;
                 } 
                 else if (q.type === 'kompleks') {
                     const correctAns = [...q.answer].sort();
                     const userAns = [...ans].sort();
                     q._isCorrect = (JSON.stringify(correctAns) === JSON.stringify(userAns));
-                    if (q._isCorrect) score++;
                 } 
                 else if (q.type === 'bs') {
                     let allCorrect = true;
@@ -670,17 +698,68 @@
                         }
                     });
                     q._isCorrect = allCorrect;
-                    if (allCorrect) score++;
+                }
+
+                if (q._isCorrect) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
                 }
             });
 
             // Calculate percentage
-            const finalScore = Math.round((score / bankSoal.length) * 100);
+            currentFinalScore = Math.round((correctCount / bankSoal.length) * 100);
             
             // Show result
             document.getElementById('result-name').innerText = studentName;
-            document.getElementById('result-score').innerText = finalScore;
+            document.getElementById('result-score').innerText = currentFinalScore;
+            document.getElementById('result-correct').innerText = correctCount;
+            document.getElementById('result-wrong').innerText = wrongCount;
             showScreen('result-screen');
+
+            // Kirim data ke Google Sheets secara otomatis
+            sendToGoogleSheets(correctCount, wrongCount);
+        }
+
+        // Kirim Nilai ke Google Sheets
+        function sendToGoogleSheets(benar, salah) {
+            const statusElem = document.getElementById('sheets-status');
+            if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL.includes("PASTE_URL")) {
+                if (statusElem) {
+                    statusElem.innerHTML = `<span class="text-amber-600 font-bold">⚠️ Google Sheets belum terhubung (URL belum dipasang)</span>`;
+                }
+                return;
+            }
+
+            if (statusElem) {
+                statusElem.innerHTML = `<span class="text-blue-600 font-bold flex items-center justify-center gap-2">⏳ Menyimpan ke Google Sheets...</span>`;
+            }
+
+            const namaPaket = selectedPackageId === 'paket1' ? 'Paket 1' : 'Paket 2';
+            const payload = {
+                nama: studentName,
+                paket: namaPaket,
+                skor: currentFinalScore,
+                benar: benar,
+                salah: salah,
+                total_soal: bankSoal.length
+            };
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                if (statusElem) {
+                    statusElem.innerHTML = `<span class="text-green-600 font-bold flex items-center justify-center gap-2">✅ Nilai Berhasil Direkap ke Google Sheets Guru!</span>`;
+                }
+            }).catch(err => {
+                console.error(err);
+                if (statusElem) {
+                    statusElem.innerHTML = `<span class="text-red-500 font-bold">❌ Gagal menyimpan rekap. Periksa koneksi internet.</span>`;
+                }
+            });
         }
 
         // Show Discussion View
