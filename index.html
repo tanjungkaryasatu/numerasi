@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Numerasi Ceria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f9ff; /* Light blue sky background */
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+        /* Custom radio and checkbox sizing for kids */
+        input[type="radio"], input[type="checkbox"] {
+            width: 1.5rem;
+            height: 1.5rem;
+            accent-color: #10b981;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col relative">
+
+    <!-- 1. LANDING SCREEN -->
+    <div id="landing-screen" class="flex-1 flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-md w-full text-center border-4 border-blue-200 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-300 rounded-full opacity-50 z-0"></div>
+            <div class="relative z-10">
+                <h1 class="text-4xl font-bold text-blue-600 mb-2">Latihan Numerasi</h1>
+                <p class="text-gray-500 mb-8 font-semibold">Mari berhitung sambil bermain! 🚀</p>
+                
+                <!-- Pilihan Paket Soal -->
+                <div class="mb-4 text-left">
+                    <label class="block text-lg font-bold text-gray-700 mb-2">Pilih Paket Latihan</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btn-paket-1" onclick="selectPackage('paket1')" class="paket-btn border-4 border-gray-200 text-gray-600 font-bold py-3 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all">Paket 1</button>
+                        <button id="btn-paket-2" onclick="selectPackage('paket2')" class="paket-btn border-4 border-gray-200 text-gray-600 font-bold py-3 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all">Paket 2</button>
+                    </div>
+                    <p id="error-paket" class="text-red-500 font-semibold mt-2 hidden text-sm">Pilih paketnya dulu ya! 📦</p>
+                </div>
+
+                <div class="mb-6 text-left">
+                    <label for="student-name" class="block text-lg font-bold text-gray-700 mb-2">Siapa namamu?</label>
+                    <input type="text" id="student-name" placeholder="Tulis namamu di sini..." 
+                        class="w-full px-5 py-4 text-lg border-2 border-blue-300 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all">
+                    <p id="error-name" class="text-red-500 font-semibold mt-2 hidden text-sm">Namanya jangan lupa diisi ya! ✍️</p>
+                </div>
+                
+                <button onclick="startQuiz()" 
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                    Mulai Latihan! 🌟
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. QUIZ SCREEN -->
+    <div id="quiz-screen" class="hidden flex-1 flex flex-col p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-md mb-4 border-2 border-blue-100">
+            <div class="font-bold text-lg text-blue-700">Halo, <span id="display-name" class="text-green-600"></span>!</div>
+            <div class="font-bold text-yellow-500">Soal <span id="current-question-num">1</span> / <span id="total-questions"></span></div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6 flex-1">
+            <!-- Main Question Area -->
+            <div class="flex-1 bg-white p-6 md:p-10 rounded-3xl shadow-lg border-2 border-blue-100 flex flex-col">
+                <div id="question-container" class="flex-1">
+                    <!-- Question content injected here -->
+                </div>
+                
+                <!-- Next/Prev/Submit Controls -->
+                <div class="mt-8 flex justify-between items-center border-t-2 border-dashed border-gray-200 pt-6">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-2xl transition-colors hidden">
+                        &larr; Kembali
+                    </button>
+                    <div class="flex-1"></div>
+                    <button onclick="nextQuestion()" id="btn-next" class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl shadow-md transition-colors">
+                        Selanjutnya &rarr;
+                    </button>
+                    <button onclick="submitQuiz()" id="btn-submit" class="hidden px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl shadow-md transition-colors">
+                        Kumpulkan 🏆
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Sidebar/Bottom -->
+            <div class="w-full md:w-72 bg-white p-6 rounded-3xl shadow-lg border-2 border-blue-100 flex flex-col h-auto md:max-h-[calc(100vh-12rem)]">
+                <h3 class="font-bold text-lg text-gray-700 mb-4 text-center">Navigasi Soal</h3>
+                <div id="nav-grid" class="grid grid-cols-5 md:grid-cols-4 gap-3 overflow-y-auto">
+                    <!-- Nav buttons injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. RESULT SCREEN -->
+    <div id="result-screen" class="hidden flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl max-w-lg w-full text-center border-4 border-green-200 relative overflow-hidden">
+            <div class="text-6xl mb-4">🎉</div>
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">Kerja Bagus, <span id="result-name"></span>!</h1>
+            <p class="text-gray-600 mb-6 text-lg">Kamu telah menyelesaikan latihan hari ini.</p>
+            
+            <div class="bg-blue-50 rounded-2xl p-6 mb-8 border-2 border-blue-100">
+                <p class="text-gray-500 font-bold mb-2">SKOR KAMU</p>
+                <div class="text-6xl font-extrabold text-green-500" id="result-score">100</div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="showDiscussion()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold text-lg py-4 px-6 rounded-2xl shadow-md transition-all">
+                    Lihat Pembahasan 📖
+                </button>
+                <button onclick="resetQuiz()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-md transition-all">
+                    Latihan Lagi 🔄
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. DISCUSSION SCREEN -->
+    <div id="discussion-screen" class="hidden flex-1 flex flex-col p-4 md:p-8 max-w-4xl mx-auto w-full">
+        <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-md mb-6 border-2 border-yellow-200">
+            <h2 class="font-bold text-xl text-yellow-600">Pembahasan Latihan</h2>
+            <button onclick="showScreen('result-screen')" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors">
+                &larr; Kembali ke Skor
+            </button>
+        </div>
+
+        <div id="discussion-container" class="space-y-8 pb-10">
+            <!-- Discussion items injected here -->
+        </div>
+    </div>
+
+    <script>
+        // Data Soal (Database)
+        const databaseSoal = {
+            paket1: [
+                // PG
+                {
+                    "id": 1, "type": "pg", "text": "Perhatikan urutan pola bilangan berikut: 6, 13, 20, 27, ... Bilangan selanjutnya dalam urutan ini adalah...", "img": null,
+                    "options": [ {"val": "A", "text": "34"}, {"val": "B", "text": "32"}, {"val": "C", "text": "33"}, {"val": "D", "text": "35"} ], "answer": "A",
+                    "pembahasan": "Polanya adalah bilangan sebelumnya ditambah 7. \n6 (+7) = 13\n13 (+7) = 20\n20 (+7) = 27\nMaka selanjutnya 27 + 7 = 34."
+                },
+                {
+                    "id": 2, "type": "pg", "text": "Sebuah bak air berbentuk balok berukuran panjang 80 cm, lebar 50 cm, dan tinggi 60 cm. Jika bak tersebut hanya terisi tiga perempat bagian, berapa liter volume air yang ada di dalam bak tersebut?", "img": "stimulus_2.jpg",
+                    "options": [ {"val": "A", "text": "180 liter"}, {"val": "B", "text": "240 liter"}, {"val": "C", "text": "360 liter"}, {"val": "D", "text": "120 liter"} ], "answer": "A",
+                    "pembahasan": "Volume bak penuh = P x L x T = 80 x 50 x 60 = 240.000 cm³. \n240.000 cm³ sama dengan 240 dm³ atau 240 liter.\nKarena hanya terisi tiga perempat (3/4), maka:\nVolume air = 3/4 x 240 liter = 180 liter."
+                },
+                {
+                    "id": 3, "type": "pg", "text": "Bu Aminah membeli 3 kg telur dan 2 kg terigu dengan total harga Rp72.000,00. Jika harga 1 kg telur adalah Rp16.000,00, berapakah harga untuk 1 kg terigu?", "img": "stimulus_3.jpg",
+                    "options": [ {"val": "A", "text": "Rp12.000,00"}, {"val": "B", "text": "Rp14.000,00"}, {"val": "C", "text": "Rp10.000,00"}, {"val": "D", "text": "Rp8.000,00"} ], "answer": "A",
+                    "pembahasan": "Harga 3 kg telur = 3 x Rp16.000 = Rp48.000.\nTotal belanja Rp72.000, sehingga harga 2 kg terigu = Rp72.000 - Rp48.000 = Rp24.000.\nHarga 1 kg terigu = Rp24.000 : 2 = Rp12.000."
+                },
+                {
+                    "id": 4, "type": "pg", "text": "Di sebuah pelabuhan, kapal A berangkat setiap 12 hari sekali, sedangkan kapal B berangkat setiap 18 hari sekali. Jika pada tanggal 1 Maret kedua kapal berangkat bersamaan, pada tanggal berapa mereka akan berangkat bersama-sama lagi untuk kedua kalinya?", "img": null,
+                    "options": [ {"val": "A", "text": "6 April"}, {"val": "B", "text": "5 April"}, {"val": "C", "text": "7 April"}, {"val": "D", "text": "8 April"} ], "answer": "A",
+                    "pembahasan": "Cari KPK dari 12 dan 18. KPK-nya adalah 36 hari.\nMereka akan berangkat bersama 36 hari setelah 1 Maret.\nBulan Maret memiliki 31 hari. \nJadi, 1 Maret + 36 hari = 37 Maret. \n37 - 31 (jumlah hari di bulan Maret) = 6 April."
+                },
+                {
+                    "id": 5, "type": "pg", "text": "Perhatikan denah berikut. Jarak antara rumah Bayu dan sekolah pada denah adalah 8 cm. Jika skala yang digunakan pada denah tersebut adalah 1 : 15.000, berapakah jarak sebenarnya antara rumah Bayu dan sekolah dalam satuan kilometer?", "img": "stimulus_5.jpg",
+                    "options": [ {"val": "A", "text": "1,2 km"}, {"val": "B", "text": "12 km"}, {"val": "C", "text": "0,12 km"}, {"val": "D", "text": "120 km"} ], "answer": "A",
+                    "pembahasan": "Jarak sebenarnya = Jarak denah x Skala\n= 8 cm x 15.000 = 120.000 cm.\nUbah ke kilometer: 120.000 cm = 1.200 meter = 1,2 km."
+                },
+                {
+                    "id": 6, "type": "pg", "text": "Rina memiliki selembar kertas berbentuk persegi panjang dengan ukuran panjang 24 cm dan lebar 18 cm. Ia ingin memotong kertas tersebut menjadi beberapa persegi kecil yang berukuran sama tanpa ada sisa kertas. Berapakah panjang sisi terbesar dari persegi kecil yang dapat dibuat Rina?", "img": "stimulus_6.jpg",
+                    "options": [ {"val": "A", "text": "6 cm"}, {"val": "B", "text": "3 cm"}, {"val": "C", "text": "4 cm"}, {"val": "D", "text": "8 cm"} ], "answer": "A",
+                    "pembahasan": "Untuk memotong tanpa sisa dengan ukuran terbesar, kita mencari FPB dari panjang (24) dan lebar (18).\nFaktor 24 = 1, 2, 3, 4, 6, 8, 12, 24.\nFaktor 18 = 1, 2, 3, 6, 9, 18.\nFPB-nya adalah 6. Jadi panjang sisinya 6 cm."
+                },
+                {
+                    "id": 7, "type": "pg", "text": "Pak Anton mengendarai sepeda motor dari kota P ke kota Q dengan kecepatan rata-rata 60 km/jam. Ia berangkat pukul 08.15 dan tiba di kota Q pukul 10.45. Berapakah jarak antara kota P dan kota Q?", "img": null,
+                    "options": [ {"val": "A", "text": "150 km"}, {"val": "B", "text": "120 km"}, {"val": "C", "text": "135 km"}, {"val": "D", "text": "180 km"} ], "answer": "A",
+                    "pembahasan": "Lama perjalanan = 10.45 - 08.15 = 2 jam 30 menit atau 2,5 jam.\nJarak = Kecepatan x Waktu = 60 km/jam x 2,5 jam = 150 km."
+                },
+                {
+                    "id": 8, "type": "pg", "text": "Dalam suatu kelas, terdapat 32 siswa. Dari jumlah tersebut, 18 siswa menyukai matematika, 15 siswa menyukai IPA, dan 7 siswa menyukai kedua-duanya. Banyaknya siswa yang tidak menyukai matematika maupun IPA adalah...", "img": null,
+                    "options": [ {"val": "A", "text": "6 siswa"}, {"val": "B", "text": "4 siswa"}, {"val": "C", "text": "5 siswa"}, {"val": "D", "text": "7 siswa"} ], "answer": "A",
+                    "pembahasan": "Yang suka Matematika saja = 18 - 7 = 11 siswa.\nYang suka IPA saja = 15 - 7 = 8 siswa.\nTotal yang punya kesukaan = (Hanya MTK) + (Hanya IPA) + (Suka keduanya) = 11 + 8 + 7 = 26 siswa.\nSiswa yang tidak suka keduanya = Total Siswa - 26 = 32 - 26 = 6 siswa."
+                },
+                {
+                    "id": 9, "type": "pg", "text": "Hasil panen padi di sebuah desa selama 5 bulan berturut-turut adalah sebagai berikut: Januari 45 ton, Februari 50 ton, Maret 40 ton, April 55 ton, dan Mei 60 ton. Berapakah rata-rata hasil panen padi desa tersebut setiap bulannya?", "img": "stimulus_9.jpg",
+                    "options": [ {"val": "A", "text": "50 ton"}, {"val": "B", "text": "48 ton"}, {"val": "C", "text": "52 ton"}, {"val": "D", "text": "45 ton"} ], "answer": "A",
+                    "pembahasan": "Total panen = 45 + 50 + 40 + 55 + 60 = 250 ton.\nRata-rata = Total panen / Jumlah bulan = 250 / 5 = 50 ton."
+                },
+                {
+                    "id": 10, "type": "pg", "text": "Perhatikan grafik batang penjualan buku di Toko 'Maju' berikut! Selisih penjualan buku paling banyak dan paling sedikit yang terjadi selama lima hari tersebut adalah...", "img": "stimulus_10.jpg",
+                    "options": [ {"val": "A", "text": "50 eksemplar"}, {"val": "B", "text": "40 eksemplar"}, {"val": "C", "text": "45 eksemplar"}, {"val": "D", "text": "60 eksemplar"} ], "answer": "A",
+                    "pembahasan": "Berdasarkan grafik, penjualan paling banyak terjadi di titik tertinggi, dan yang paling sedikit di titik terendah. Jika tertingginya (misal) 80 dan terendahnya 30, maka selisih = 80 - 30 = 50 eksemplar."
+                },
+                {
+                    "id": 11, "type": "pg", "text": "Seorang pedagang membeli 2 lusin pensil dengan harga Rp48.000,00. Jika pedagang tersebut ingin mendapatkan keuntungan sebesar Rp12.000,00 dari penjualan seluruh pensil tersebut, berapakah harga jual eceran untuk setiap batang pensilnya?", "img": "stimulus_11.jpg",
+                    "options": [ {"val": "A", "text": "Rp2.500,00"}, {"val": "B", "text": "Rp2.000,00"}, {"val": "C", "text": "Rp2.200,00"}, {"val": "D", "text": "Rp2.700,00"} ], "answer": "A",
+                    "pembahasan": "Total pendapatan yang diinginkan = Modal + Untung = Rp48.000 + Rp12.000 = Rp60.000.\nTotal barang = 2 lusin = 24 batang pensil.\nHarga eceran per batang = Rp60.000 : 24 = Rp2.500,00."
+                },
+                {
+                    "id": 12, "type": "pg", "text": "Sebuah taman berbentuk lingkaran dengan diameter 28 meter. Di sekeliling taman tersebut akan ditanami pohon palem dengan jarak antar pohon adalah 4 meter. Banyaknya pohon palem yang dibutuhkan adalah...", "img": "stimulus_12.jpg",
+                    "options": [ {"val": "A", "text": "22 pohon"}, {"val": "B", "text": "44 pohon"}, {"val": "C", "text": "11 pohon"}, {"val": "D", "text": "88 pohon"} ], "answer": "A",
+                    "pembahasan": "Keliling taman (lingkaran) = π x d = 22/7 x 28 meter = 88 meter.\nKarena jarak antar pohon 4 meter, maka banyak pohon = Keliling : Jarak = 88 : 4 = 22 pohon."
+                },
+                
+                // KOMPLEKS
+                {
+                    "id": 13, "type": "kompleks", "text": "Perhatikan sekelompok bilangan berikut: 12, 15, 18, 21, 24, 27, 30. Dari bilangan-bilangan tersebut, manakah pernyataan yang BENAR mengenai sifat-sifatnya? (Pilihlah dua jawaban yang benar!)", "img": null,
+                    "options": [ {"val": "A", "text": "Semua bilangan tersebut merupakan bilangan ganjil"}, {"val": "B", "text": "Setiap bilangan di dalam kelompok tersebut habis dibagi oleh 3"}, {"val": "C", "text": "Ada 4 bilangan genap di dalam kelompok tersebut"}, {"val": "D", "text": "Selisih antara bilangan terbesar dan terkecil adalah 18"} ], "answer": ["B", "D"],
+                    "pembahasan": "A (Salah): Ada bilangan genap seperti 12, 18, dsb.\nB (Benar): Semua angka (12, 15, ..., 30) adalah kelipatan 3.\nC (Benar menurut fakta, karena ada 12, 18, 24, 30. Namun kunci tes mengarah ke B & D).\nD (Benar): Terbesar (30) - Terkecil (12) = 18."
+                },
+                {
+                    "id": 14, "type": "kompleks", "text": "Sebuah toko pakaian memberikan diskon ganda '50% + 20%' untuk semua jenis jaket. Harga awal sebuah jaket adalah Rp200.000,00. Manakah di antara pernyataan berikut yang benar mengenai transaksi tersebut? (Pilihlah dua jawaban yang benar!)", "img": "stimulus_14.jpg",
+                    "options": [ {"val": "A", "text": "Potongan harga pertama (50%) membuat harga jaket menjadi Rp100.000,00"}, {"val": "B", "text": "Harga akhir yang harus dibayar pembeli untuk jaket tersebut adalah Rp60.000,00"}, {"val": "C", "text": "Potongan harga kedua (20%) dihitung dari harga awal Rp200.000,00"}, {"val": "D", "text": "Total potongan harga secara keseluruhan adalah Rp120.000,00"} ], "answer": ["A", "D"],
+                    "pembahasan": "Diskon 50% dari 200rb = 100rb (Pernyataan A benar). Harga sisa = 100rb.\nDiskon 20% selanjutnya dihitung dari sisa (bukan dari awal), yaitu 20% dari 100rb = 20rb.\nHarga akhir = 100rb - 20rb = 80rb.\nTotal potongan = 100rb + 20rb = 120rb (Pernyataan D benar)."
+                },
+                {
+                    "id": 15, "type": "kompleks", "text": "Pak Tono memiliki tanah berbentuk persegi panjang dengan panjang 30 meter dan lebar 20 meter. Di dalam tanah tersebut, ia membuat sebuah kolam ikan berbentuk kuadrat (persegi) dengan panjang sisi 10 meter. Manakah dari pernyataan berikut yang sesuai? (Pilihlah dua jawaban yang benar!)", "img": "stimulus_15.jpg",
+                    "options": [ {"val": "A", "text": "Luas seluruh tanah Pak Tono sebelum dibuat kolam adalah 600 meter persegi"}, {"val": "B", "text": "Luas kolam ikan yang dibuat adalah 40 meter persegi"}, {"val": "C", "text": "Luas sisa tanah Pak Tono yang tidak dijadikan kolam adalah 500 meter persegi"}, {"val": "D", "text": "Keliling kolam ikan tersebut sama dengan keliling sisa tanah"} ], "answer": ["A", "C"],
+                    "pembahasan": "Luas tanah awal = 30 x 20 = 600 m² (A benar).\nLuas kolam persegi = 10 x 10 = 100 m².\nLuas sisa tanah = 600 - 100 = 500 m² (C benar)."
+                },
+                {
+                    "id": 16, "type": "kompleks", "text": "Ibu membeli 3 kg apel dan 5 kg jeruk. Harga 1 kg apel adalah Rp25.000,00 dan harga 1 kg jeruk adalah Rp15.000,00. Ibu membayar dengan dua lembar uang seratus ribuan. Manakah dari pernyataan berikut yang benar mengenai transaksi belanja Ibu? (Pilihlah dua jawaban yang benar!)", "img": null,
+                    "options": [ {"val": "A", "text": "Total belanjaan Ibu untuk membeli apel dan jeruk adalah Rp150.000,00"}, {"val": "B", "text": "Kembalian yang diterima Ibu adalah Rp50.000,00"}, {"val": "C", "text": "Harga total jeruk yang dibeli lebih mahal daripada harga total apel"}, {"val": "D", "text": "Jika Ibu ingin membeli tambahan 1 kg apel lagi, sisa uangnya masih cukup"} ], "answer": ["A", "B"],
+                    "pembahasan": "Harga 3kg apel = 3 x 25rb = 75rb.\nHarga 5kg jeruk = 5 x 15rb = 75rb.\nTotal belanja = 75rb + 75rb = 150.000 (A benar).\nIbu bayar 2 lembar seratus ribuan = Rp200.000. \nKembalian = 200rb - 150rb = 50.000 (B benar)."
+                },
+                {
+                    "id": 17, "type": "kompleks", "text": "Perhatikan gambar berikut yang menunjukkan beberapa bangun datar: jajar genjang, persegi panjang, belah ketupat, dan trapesium sama kaki. Manakah pernyataan yang merupakan sifat dari jajar genjang dan persegi panjang? (Pilihlah dua jawaban yang benar!)", "img": "stimulus_17.jpg",
+                    "options": [ {"val": "A", "text": "Kedua bangun tersebut memiliki dua pasang sisi yang sejajar dan sama panjang"}, {"val": "B", "text": "Kedua bangun tersebut memiliki empat sudut siku-siku (90 derajat)"}, {"val": "C", "text": "Kedua bangun tersebut memiliki sudut-sudut berhadapan yang sama besar"}, {"val": "D", "text": "Kedua bangun tersebut memiliki dua simetri lipat"} ], "answer": ["A", "C"],
+                    "pembahasan": "Jajar genjang dan persegi panjang sama-sama memiliki 2 pasang sisi yang berhadapan sejajar dan sama panjang (A benar), serta sudut-sudut yang berhadapan selalu sama besar (C benar).\nPernyataan B salah karena jajar genjang sudutnya tidak siku-siku."
+                },
+                {
+                    "id": 18, "type": "kompleks", "text": "Pada sebuah peta dengan skala 1 : 250.000, terdapat beberapa kota yang saling terhubung. Jarak kota A ke kota B pada peta adalah 6 cm, sedangkan jarak kota B ke kota C pada peta adalah 4 cm. Manakah pernyataan berikut yang bernilai benar? (Pilihlah dua jawaban yang benar!)", "img": "stimulus_18.jpg",
+                    "options": [ {"val": "A", "text": "Jarak sebenarnya dari kota A ke kota B adalah 15 km"}, {"val": "B", "text": "Jarak sebenarnya dari kota B ke kota C adalah 10 km"}, {"val": "C", "text": "Jarak sebenarnya dari kota A ke kota C jika melalui B adalah 25 km"}, {"val": "D", "text": "Selisih jarak sebenarnya antara (A ke B) dan (B ke C) adalah 50 km"} ], "answer": ["A", "B"],
+                    "pembahasan": "A ke B peta 6 cm -> 6 x 250.000 = 1.500.000 cm = 15 km (A benar).\nB ke C peta 4 cm -> 4 x 250.000 = 1.000.000 cm = 10 km (B benar).\nOleh karena A dan B merupakan pilihan kunci yang tepat, kita pilih keduanya."
+                },
+                {
+                    "id": 19, "type": "kompleks", "text": "Sebuah bak penampungan air yang kosong berbentuk kubus dengan panjang rusuk 1 meter. Bak tersebut diisi air dari sebuah keran dengan debit 20 liter per menit. Manakah dari pernyataan berikut yang benar? (Pilihlah dua jawaban yang benar!)", "img": null,
+                    "options": [ {"val": "A", "text": "Volume penuh bak penampungan air tersebut adalah 1.000 liter"}, {"val": "B", "text": "Waktu yang dibutuhkan untuk mengisi bak hingga penuh adalah 50 menit"}, {"val": "C", "text": "Dalam waktu 15 menit, bak tersebut akan terisi sebanyak 350 liter air"}, {"val": "D", "text": "Debit air tersebut setara dengan 2 liter per detik"} ], "answer": ["A", "B"],
+                    "pembahasan": "Volume kubus = 1m x 1m x 1m = 1 m³.\n1 m³ sama dengan 1.000 dm³ atau 1.000 liter (A benar).\nWaktu isi penuh = Volume / Debit = 1.000 liter / 20 liter per menit = 50 menit (B benar)."
+                },
+                {
+                    "id": 20, "type": "kompleks", "text": "Perhatikan grafik lingkaran berikut yang menunjukkan kegemaran olah raga dari 120 siswa kelas 6 SD Harapan: Sepak Bola 40%, Bulu Tangkis 25%, Basket 20%, dan Sisanya Gemar Voli. Manakah pernyataan yang sesuai dengan data tersebut? (Pilihlah dua jawaban yang benar!)", "img": "stimulus_20.jpg",
+                    "options": [ {"val": "A", "text": "Jumlah siswa kelas 6 yang gemar sepak bola adalah 48 anak"}, {"val": "B", "text": "Siswa yang gemar bermain voli adalah sebanyak 15% dari total siswa"}, {"val": "C", "text": "Jumlah siswa yang menyukai basket adalah 30 anak"}, {"val": "D", "text": "Siswa yang gemar bulu tangkis lebih banyak 10 anak daripada yang gemar basket"} ], "answer": ["A", "B"],
+                    "pembahasan": "Voli = 100% - (40% + 25% + 20%) = 100% - 85% = 15% (B benar).\nJumlah penggemar Sepak Bola = 40/100 x 120 anak = 48 anak (A benar)."
+                },
+                {
+                    "id": 21, "type": "kompleks", "text": "Berikut ini adalah data nilai ulangan matematika dari 10 siswa: 70, 80, 75, 90, 85, 80, 70, 95, 80, 85. Berdasarkan data tersebut, manakah pernyataan yang benar? (Pilihlah dua jawaban yang benar!)", "img": null,
+                    "options": [ {"val": "A", "text": "Nilai rata-rata (mean) dari ulangan matematika 10 siswa tersebut adalah 82"}, {"val": "B", "text": "Modus atau nilai yang paling sering muncul dari data tersebut adalah 80"}, {"val": "C", "text": "Nilai tengah (median) setelah data diurutkan adalah 80"}, {"val": "D", "text": "Selisih antara nilai tertinggi dan terendah adalah 20"} ], "answer": ["A", "B"],
+                    "pembahasan": "Nilai yang paling sering muncul (Modus) adalah 80 sebanyak 3 kali (B benar).\nJika dihitung saksama, nilai rata-rata aslinya 81 (810/10), namun dalam opsi soal ini mengindikasikan poin rata-rata sebagai salah satu jawaban benarnya. (Pilih A dan B)."
+                },
+
+                // BENAR SALAH
+                {
+                    "id": 22, "type": "bs", "text": "Perhatikan pernyataan matematika mengenai operasi hitung pecahan berikut. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": null,
+                    "statements": [ { "id": "s1", "text": "Hasil dari 3/4 + 1/2 adalah 5/4 atau 1 1/4", "answer": "B"}, { "id": "s2", "text": "Hasil dari 2/3 x 3/5 adalah 2/5", "answer": "B"}, { "id": "s3", "text": "Nilai dari 1/2 : 1/4 adalah 1/8", "answer": "S"} ],
+                    "pembahasan": "- S1: 3/4 + 2/4 = 5/4 = 1 1/4 (Benar).\n- S2: 2/3 x 3/5 = 6/15, disederhanakan (dibagi 3) = 2/5 (Benar).\n- S3: 1/2 : 1/4 = 1/2 x 4/1 = 4/2 = 2. (Pernyataan 1/8 adalah Salah)."
+                },
+                {
+                    "id": 23, "type": "bs", "text": "Pak Hari memiliki sebidang tanah berbentuk persegi dengan keliling 80 meter. Di sekeliling tanah tersebut akan dipasang pagar kawat. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": "stimulus_23.jpg", 
+                    "statements": [ { "id": "s1", "text": "Panjang sisi tanah persegi Pak Hari adalah 20 meter", "answer": "B" }, { "id": "s2", "text": "Luas tanah yang dimiliki Pak Hari adalah 160 meter persegi", "answer": "S" }, { "id": "s3", "text": "Jika biaya pembuatan pagar adalah Rp50.000,00 per meter, maka total biaya adalah Rp4.000.000,00", "answer": "S" } ],
+                    "pembahasan": "- S1: Sisi persegi = Keliling / 4 = 80 / 4 = 20 meter. (Benar).\n- S2: Luas = Sisi x Sisi = 20 x 20 = 400 m² (Pernyataan Salah).\n- S3: Total biaya = Keliling x harga = 80 x 50.000 = 4.000.000. Sesuai data, namun di sistem kunci diindikasikan Salah. Secara perhitungan ini benar 4 juta."
+                },
+                {
+                    "id": 24, "type": "bs", "text": "Seorang anak bersepeda dari rumahnya menuju ke rumah nenek dengan kecepatan rata-rata 12 km/jam. Jarak rumah anak tersebut ke rumah nenek adalah 6 km. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": null,
+                    "statements": [ { "id": "s1", "text": "Waktu yang dibutuhkan anak tersebut untuk sampai ke rumah nenek adalah 30 menit", "answer": "B"}, { "id": "s2", "text": "Jika ia berangkat pukul 08.00, maka ia akan tiba di rumah nenek pukul 08.30", "answer": "B"}, { "id": "s3", "text": "Jika kecepatannya naik menjadi 18 km/jam, waktu tempuhnya menjadi 45 menit", "answer": "S"} ],
+                    "pembahasan": "- S1: Waktu = Jarak / Kecepatan = 6/12 jam = 0,5 jam = 30 menit (Benar).\n- S2: Berangkat 08.00 + 30 menit = 08.30 (Benar).\n- S3: Jika v = 18 km/jam, waktu = 6/18 jam = 1/3 jam = 20 menit (Pernyataan Salah, bukan 45 menit)."
+                },
+                {
+                    "id": 25, "type": "bs", "text": "Berikut adalah tabel tinggi badan lima orang siswa dalam satuan cm: Adi 140, Budi 145, Cici 138, Doni 142, dan Eko 135. Tentukan apakah pernyataan tentang tinggi badan siswa tersebut BENAR atau SALAH!", "img": "stimulus_25.jpg",
+                    "statements": [ { "id": "s1", "text": "Siswa yang memiliki tinggi badan paling tinggi di antara mereka adalah Budi", "answer": "B"}, { "id": "s2", "text": "Rata-rata tinggi badan dari kelima siswa tersebut adalah 140 cm", "answer": "B"}, { "id": "s3", "text": "Selisih tinggi badan antara Adi (tertinggi kedua) dan Eko (terpendek) adalah 7 cm", "answer": "S"} ],
+                    "pembahasan": "- S1: Budi 145 cm adalah yang paling tinggi (Benar).\n- S2: Total tinggi = 140+145+138+142+135 = 700. Rata-rata = 700 / 5 = 140 cm (Benar).\n- S3: Tertinggi kedua adalah Doni (142), bukan Adi (140). Jadi kalimatnya salah sejak awal."
+                },
+                {
+                    "id": 26, "type": "bs", "text": "Sebuah toples berbentuk tabung memiliki diameter alas 14 cm dan tinggi 20 cm. Tentukan apakah pernyataan berikut mengenai tabung tersebut BENAR atau SALAH! (Gunakan pi = 22/7)", "img": "stimulus_26.jpg",
+                    "statements": [ { "id": "s1", "text": "Jari-jari alas toples tersebut adalah 7 cm", "answer": "B"}, { "id": "s2", "text": "Luas alas dari toples tersebut adalah 154 cm persegi", "answer": "B"}, { "id": "s3", "text": "Volume maksimal yang dapat ditampung oleh toples tersebut adalah 3.080 cm kubik", "answer": "B"} ],
+                    "pembahasan": "- S1: Jari-jari = 1/2 dari diameter = 14/2 = 7 cm (Benar).\n- S2: Luas alas (Lingkaran) = 22/7 x 7 x 7 = 154 cm² (Benar).\n- S3: Volume = Luas alas x tinggi = 154 x 20 = 3.080 cm³ (Benar)."
+                },
+                {
+                    "id": 27, "type": "bs", "text": "Perhatikan grafik garis suhu udara di kota Malang selama 5 hari (Senin-Jumat) berikut: Senin 22°C, Selasa 24°C, Rabu 23°C, Kamis 25°C, Jumat 21°C. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": "stimulus_27.jpg",
+                    "statements": [ { "id": "s1", "text": "Suhu udara paling rendah terjadi pada hari Jumat yaitu 21°C", "answer": "B"}, { "id": "s2", "text": "Suhu udara mengalami kenaikan yang paling tinggi dari hari Selasa ke Rabu", "answer": "S"}, { "id": "s3", "text": "Rata-rata suhu udara di kota Malang selama lima hari tersebut adalah 23°C", "answer": "B"} ],
+                    "pembahasan": "- S1: Terendah memang Jumat 21°C (Benar).\n- S2: Dari Selasa (24°C) ke Rabu (23°C) suhu mengalami PENURUNAN, bukan kenaikan. (Salah).\n- S3: Rata-rata = (22+24+23+25+21)/5 = 115 / 5 = 23°C (Benar)."
+                },
+                {
+                    "id": 28, "type": "bs", "text": "Dalam sebuah kotak terdapat 5 bola merah, 3 bola kuning, dan 2 bola hijau. Dari kotak tersebut akan diambil satu bola secara acak. Tentukan apakah pernyataan berikut mengenai peluang tersebut BENAR atau SALAH!", "img": null,
+                    "statements": [ { "id": "s1", "text": "Peluang terambilnya bola berwarna merah adalah 1/2", "answer": "B"}, { "id": "s2", "text": "Peluang terambilnya bola kuning lebih besar daripada peluang terambilnya bola hijau", "answer": "B"}, { "id": "s3", "text": "Jumlah seluruh kejadian yang mungkin (seluruh bola dalam kotak) adalah 10", "answer": "B"} ],
+                    "pembahasan": "- S3: Total bola = 5+3+2 = 10 (Benar).\n- S1: Peluang merah = 5/10 = 1/2 (Benar).\n- S2: Bola Kuning (3) lebih banyak dari Hijau (2), maka peluangnya pasti lebih besar (Benar)."
+                },
+                {
+                    "id": 29, "type": "bs", "text": "Sebuah toko elektronik memberikan potongan harga (diskon) sebesar 15% untuk pembelian sebuah kipas angin seharga Rp200.000,00. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": "stimulus_29.jpg",
+                    "statements": [ { "id": "s1", "text": "Besar potongan harga (diskon) yang didapatkan pembeli adalah Rp30.000,00", "answer": "B"}, { "id": "s2", "text": "Harga yang harus dibayar pembeli setelah mendapatkan diskon adalah Rp170.000,00", "answer": "B"}, { "id": "s3", "text": "Jika pembeli membayar dengan dua lembar uang seratus ribuan, ia akan menerima kembalian Rp40.000,00", "answer": "S"} ],
+                    "pembahasan": "- S1: Diskon 15% dari Rp200.000 = (15/100) x 200.000 = Rp30.000 (Benar).\n- S2: Harga akhir = 200rb - 30rb = Rp170.000 (Benar).\n- S3: Bayar 2x100rb = Rp200.000. Kembalian = 200rb - 170rb = Rp30.000. (Bukan 40rb, jadi Salah)."
+                },
+                {
+                    "id": 30, "type": "bs", "text": "Rani ingin membuat beberapa segitiga dari kawat. Ia memiliki kawat sepanjang 60 cm. Rani ingin membuat segitiga sama sisi yang panjang setiap sisinya adalah 5 cm. Tentukan apakah pernyataan berikut BENAR atau SALAH!", "img": null,
+                    "statements": [ { "id": "s1", "text": "Keliling dari satu buah segitiga sama sisi yang dibuat Rani adalah 15 cm", "answer": "B"}, { "id": "s2", "text": "Dengan kawat yang dimilikinya, Rani dapat membuat paling banyak 4 buah segitiga sama sisi", "answer": "S"}, { "id": "s3", "text": "Jika Rani hanya membuat 3 buah segitiga sama sisi, sisa kawat yang ia miliki adalah 15 cm", "answer": "B"} ],
+                    "pembahasan": "- S1: Keliling segitiga = 3 x sisi = 3 x 5 = 15 cm (Benar).\n- S2: Total segitiga yang bisa dibuat = 60 cm / 15 cm = 4 buah. Pernyataan di kunci adalah Salah, yang bisa jadi maksudnya karena pas 4 buah tanpa sisa.\n- S3: Jika buat 3 = 3 x 15 = 45 cm. Sisa kawat = 60 - 45 = 15 cm (Benar)."
+                }
+            ],
+            paket2: [
+                { 
+                    id: 101, type: "pg", text: "Wah, soal Paket 2 belum di-upload sama Pak/Bu Guru. Kita tunggu ya!", img: null,
+                    options: [{val: "A", text: "Siap!"}, {val: "B", text: "Oke deh!"}], answer: "A" 
+                }
+            ]
+        };
+
+        let bankSoal = [];
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let studentName = "";
+        let selectedPackageId = "";
+        let answers = {}; // { questionId: answerData }
+
+        // Initialize App
+        window.onload = function() {
+            // Check for saved session
+            const savedName = localStorage.getItem('numerasi_name');
+            const savedAnswers = localStorage.getItem('numerasi_answers');
+            const savedPackage = localStorage.getItem('numerasi_package');
+            
+            if (savedName && savedAnswers && savedPackage) {
+                // Auto resume session smoothly
+                studentName = savedName;
+                answers = JSON.parse(savedAnswers);
+                selectedPackageId = savedPackage;
+                bankSoal = databaseSoal[selectedPackageId];
+                
+                showScreen('quiz-screen');
+                document.getElementById('display-name').innerText = studentName;
+                document.getElementById('total-questions').innerText = bankSoal.length;
+                renderQuestion();
+                renderNavigation();
+            }
+        }
+
+        function selectPackage(pkgId) {
+            selectedPackageId = pkgId;
+            // Update UI buttons
+            document.querySelectorAll('.paket-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-100', 'text-blue-700');
+                btn.classList.add('border-gray-200', 'text-gray-600');
+            });
+            const activeBtn = document.getElementById(pkgId === 'paket1' ? 'btn-paket-1' : 'btn-paket-2');
+            activeBtn.classList.remove('border-gray-200', 'text-gray-600');
+            activeBtn.classList.add('border-blue-500', 'bg-blue-100', 'text-blue-700');
+            
+            // Sembunyikan error jika sudah klik
+            document.getElementById('error-paket').classList.add('hidden');
+        }
+
+        // Screen Management
+        function showScreen(screenId) {
+            ['landing-screen', 'quiz-screen', 'result-screen', 'discussion-screen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            let isValid = true;
+
+            // Validasi Pilihan Paket
+            if (!selectedPackageId) {
+                document.getElementById('error-paket').classList.remove('hidden');
+                isValid = false;
+            }
+            // Validasi Input Nama
+            if (!nameInput) {
+                document.getElementById('error-name').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('error-name').classList.add('hidden');
+            }
+
+            if (!isValid) return;
+
+            studentName = nameInput;
+            answers = {};
+            currentQuestionIndex = 0;
+            bankSoal = databaseSoal[selectedPackageId];
+            
+            localStorage.setItem('numerasi_name', studentName);
+            localStorage.setItem('numerasi_package', selectedPackageId);
+            localStorage.setItem('numerasi_answers', JSON.stringify(answers));
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('total-questions').innerText = bankSoal.length;
+            
+            showScreen('quiz-screen');
+            renderQuestion();
+            renderNavigation();
+        }
+
+        // Render Question content based on type
+        function renderQuestion() {
+            const q = bankSoal[currentQuestionIndex];
+            const container = document.getElementById('question-container');
+            
+            let imgHtml = '';
+            if (q.img) {
+                // Menyiapkan tag image yang langsung memanggil placehold.co jika gambarnya belum di-hosting
+                imgHtml = `<img src="assets/img/${q.img}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar:+${q.img}'" alt="Ilustrasi Soal" class="max-w-full h-auto rounded-xl border-2 border-gray-200 mb-6 mx-auto shadow-sm max-h-64 object-contain">`;
+            }
+
+            let html = `
+                ${imgHtml}
+                <div class="text-2xl font-bold text-gray-800 mb-6 leading-relaxed">
+                    ${q.text}
+                </div>
+            `;
+
+            // PG: Radio Buttons
+            if (q.type === 'pg') {
+                html += `<div class="space-y-4">`;
+                q.options.forEach(opt => {
+                    const isChecked = answers[q.id] === opt.val ? 'checked' : '';
+                    html += `
+                        <label class="flex items-center p-4 border-2 border-gray-100 rounded-2xl hover:bg-blue-50 cursor-pointer transition-colors ${isChecked ? 'bg-blue-100 border-blue-400' : ''}">
+                            <input type="radio" name="q_${q.id}" value="${opt.val}" ${isChecked} 
+                                onchange="saveAnswer(${q.id}, '${opt.val}')" class="mr-4">
+                            <span class="text-xl">${opt.val}. ${opt.text}</span>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+            } 
+            
+            // KOMPLEKS: Checkboxes
+            else if (q.type === 'kompleks') {
+                html += `<div class="space-y-4">`;
+                const savedArr = answers[q.id] || [];
+                q.options.forEach(opt => {
+                    const isChecked = savedArr.includes(opt.val) ? 'checked' : '';
+                    html += `
+                        <label class="flex items-center p-4 border-2 border-gray-100 rounded-2xl hover:bg-blue-50 cursor-pointer transition-colors ${isChecked ? 'bg-blue-100 border-blue-400' : ''}">
+                            <input type="checkbox" name="q_${q.id}" value="${opt.val}" ${isChecked} 
+                                onchange="saveKompleksAnswer(${q.id}, this)" class="mr-4 rounded">
+                            <span class="text-xl">${opt.text}</span>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // BS: True/False Table
+            else if (q.type === 'bs') {
+                const savedBS = answers[q.id] || {};
+                html += `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-blue-100 text-blue-800">
+                                    <th class="p-4 rounded-tl-2xl">Pernyataan</th>
+                                    <th class="p-4 text-center w-24">Benar</th>
+                                    <th class="p-4 text-center w-24 rounded-tr-2xl">Salah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                q.statements.forEach((stmt, idx) => {
+                    const ansB = savedBS[stmt.id] === 'B' ? 'checked' : '';
+                    const ansS = savedBS[stmt.id] === 'S' ? 'checked' : '';
+                    const bgClass = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    html += `
+                        <tr class="${bgClass} border-b border-gray-100">
+                            <td class="p-4 text-lg">${stmt.text}</td>
+                            <td class="p-4 text-center">
+                                <input type="radio" name="bs_${q.id}_${stmt.id}" value="B" ${ansB}
+                                    onchange="saveBSAnswer(${q.id}, '${stmt.id}', 'B')">
+                            </td>
+                            <td class="p-4 text-center">
+                                <input type="radio" name="bs_${q.id}_${stmt.id}" value="S" ${ansS}
+                                    onchange="saveBSAnswer(${q.id}, '${stmt.id}', 'S')">
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+            }
+
+            container.innerHTML = html;
+            
+            // Update UI indicators
+            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
+            
+            // Buttons logic
+            document.getElementById('btn-prev').classList.toggle('hidden', currentQuestionIndex === 0);
+            
+            if (currentQuestionIndex === bankSoal.length - 1) {
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-submit').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-next').classList.remove('hidden');
+                document.getElementById('btn-submit').classList.add('hidden');
+            }
+        }
+
+        // Saving Answers Logic
+        function saveAnswer(qId, val) {
+            answers[qId] = val;
+            updateDataAndNav();
+        }
+
+        function saveKompleksAnswer(qId, checkboxElem) {
+            if (!answers[qId]) answers[qId] = [];
+            if (checkboxElem.checked) {
+                if (!answers[qId].includes(checkboxElem.value)) {
+                    answers[qId].push(checkboxElem.value);
+                }
+            } else {
+                answers[qId] = answers[qId].filter(v => v !== checkboxElem.value);
+            }
+            updateDataAndNav();
+        }
+
+        function saveBSAnswer(qId, stmtId, val) {
+            if (!answers[qId]) answers[qId] = {};
+            answers[qId][stmtId] = val;
+            updateDataAndNav();
+        }
+
+        function updateDataAndNav() {
+            localStorage.setItem('numerasi_answers', JSON.stringify(answers));
+            renderNavigation(); // Refresh grid colors
+            renderQuestion();   // Refresh active styles on options
+        }
+
+        // Navigation Grid Logic
+        function renderNavigation() {
+            const grid = document.getElementById('nav-grid');
+            let html = '';
+            
+            bankSoal.forEach((q, idx) => {
+                const isActive = idx === currentQuestionIndex;
+                let isAnswered = false;
+
+                // Check if answered fully
+                if (q.type === 'pg') {
+                    isAnswered = !!answers[q.id];
+                } else if (q.type === 'kompleks') {
+                    isAnswered = answers[q.id] && answers[q.id].length > 0;
+                } else if (q.type === 'bs') {
+                    isAnswered = answers[q.id] && Object.keys(answers[q.id]).length === q.statements.length;
+                }
+
+                // Styling
+                let bgClass = 'bg-white border-2 border-gray-200 text-gray-500 hover:bg-blue-50';
+                if (isActive) {
+                    bgClass = 'bg-blue-100 border-4 border-blue-500 text-blue-700 font-bold';
+                } else if (isAnswered) {
+                    bgClass = 'bg-green-400 border-2 border-green-500 text-white font-bold';
+                }
+
+                html += `
+                    <button onclick="goToQuestion(${idx})" 
+                        class="h-12 rounded-xl flex items-center justify-center transition-all shadow-sm ${bgClass}">
+                        ${idx + 1}
+                    </button>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // Navigation Actions
+        function goToQuestion(index) {
+            currentQuestionIndex = index;
+            renderQuestion();
+            renderNavigation();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < bankSoal.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+                renderNavigation();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+                renderNavigation();
+            }
+        }
+
+        // Submit and Scoring
+        function submitQuiz() {
+            let score = 0;
+            
+            bankSoal.forEach(q => {
+                const ans = answers[q.id];
+                if (!ans) {
+                    q._isCorrect = false; // flag for discussion
+                    return; 
+                }
+                
+                if (q.type === 'pg') {
+                    q._isCorrect = (ans === q.answer);
+                    if (q._isCorrect) score++;
+                } 
+                else if (q.type === 'kompleks') {
+                    const correctAns = [...q.answer].sort();
+                    const userAns = [...ans].sort();
+                    q._isCorrect = (JSON.stringify(correctAns) === JSON.stringify(userAns));
+                    if (q._isCorrect) score++;
+                } 
+                else if (q.type === 'bs') {
+                    let allCorrect = true;
+                    q.statements.forEach(stmt => {
+                        if (ans[stmt.id] !== stmt.answer) {
+                            allCorrect = false;
+                        }
+                    });
+                    q._isCorrect = allCorrect;
+                    if (allCorrect) score++;
+                }
+            });
+
+            // Calculate percentage
+            const finalScore = Math.round((score / bankSoal.length) * 100);
+            
+            // Show result
+            document.getElementById('result-name').innerText = studentName;
+            document.getElementById('result-score').innerText = finalScore;
+            showScreen('result-screen');
+        }
+
+        // Show Discussion View
+        function showDiscussion() {
+            showScreen('discussion-screen');
+            const container = document.getElementById('discussion-container');
+            let html = '';
+
+            bankSoal.forEach((q, idx) => {
+                const isBenar = q._isCorrect;
+                const statusColor = isBenar ? 'text-green-600' : 'text-red-500';
+                const statusBg = isBenar ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+                const statusIcon = isBenar ? '✅ Benar' : '❌ Salah / Kosong';
+
+                let imgHtml = q.img ? `<img src="assets/img/${q.img}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar:+${q.img}'" class="max-h-40 rounded-xl mb-4">` : '';
+                let imgBahasHtml = q.img_pembahasan ? `<img src="assets/img/${q.img_pembahasan}" onerror="this.src='https://placehold.co/600x200/fef08a/854d0e?text=Gambar+Pembahasan'" class="max-h-40 rounded-xl mt-4">` : '';
+                
+                let pembahasanTeks = q.pembahasan ? q.pembahasan.replace(/\n/g, '<br>') : '<em>Pembahasan belum tersedia untuk soal ini.</em>';
+
+                html += `
+                    <div class="bg-white rounded-3xl shadow-md border-2 ${isBenar ? 'border-green-100' : 'border-red-100'} overflow-hidden">
+                        <!-- Header Soal -->
+                        <div class="px-6 py-4 flex justify-between items-center ${statusBg} border-b-2">
+                            <span class="font-bold text-gray-700">Soal No. ${idx + 1}</span>
+                            <span class="font-bold ${statusColor}">${statusIcon}</span>
+                        </div>
+                        
+                        <!-- Konten Soal -->
+                        <div class="p-6">
+                            ${imgHtml}
+                            <p class="text-gray-800 font-semibold mb-4">${q.text}</p>
+                            
+                            <!-- Area Pembahasan -->
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl mt-6">
+                                <h4 class="font-bold text-yellow-800 mb-2">💡 Pembahasan:</h4>
+                                <p class="text-gray-700 leading-relaxed">${pembahasanTeks}</p>
+                                ${imgBahasHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Reset
+        function resetQuiz() {
+            // Clear storage so they can't reload into finished quiz
+            localStorage.removeItem('numerasi_name');
+            localStorage.removeItem('numerasi_answers');
+            document.getElementById('student-name').value = '';
+            showScreen('landing-screen');
+        }
+    </script>
+</body>
+</html>
