@@ -161,8 +161,13 @@
         // Ganti teks di bawah dengan Web App URL dari Google Apps Script milik Bos
         const GOOGLE_SHEETS_URL = "PASTE_URL_GOOGLE_APPS_SCRIPT_DI_SINI"; 
         
+        // Lokasi folder gambar di GitHub:
+        // - Gunakan "assets/img/" jika gambar ada di dalam folder assets/img/
+        // - Gunakan "" atau "./" jika gambar di-upload langsung di folder utama (sebelah index.html)
+        const IMAGE_BASE_PATH = "assets/img/"; 
+        
         // Data Soal (Database)
-                const databaseSoal = {
+        const databaseSoal = {
             paket1: [
                 // PG
                 {
@@ -483,8 +488,9 @@
             
             let imgHtml = '';
             if (q.img) {
-                // Menyiapkan tag image yang langsung memanggil placehold.co jika gambarnya belum di-hosting
-                imgHtml = `<img src="assets/img/${q.img}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar:+${q.img}'" alt="Ilustrasi Soal" class="max-w-full h-auto rounded-xl border-2 border-gray-200 mb-6 mx-auto shadow-sm max-h-64 object-contain">`;
+                // Menyiapkan tag image menggunakan jalur IMAGE_BASE_PATH
+                const imageSrc = `${IMAGE_BASE_PATH}${q.img}`;
+                imgHtml = `<img src="${imageSrc}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar+tidak+ditemukan:+${q.img}'" alt="Ilustrasi Soal" class="max-w-full h-auto rounded-xl border-2 border-gray-200 mb-6 mx-auto shadow-sm max-h-64 object-contain">`;
             }
 
             let html = `
@@ -774,8 +780,8 @@
                 const statusBg = isBenar ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
                 const statusIcon = isBenar ? '✅ Benar' : '❌ Salah / Kosong';
 
-                let imgHtml = q.img ? `<img src="assets/img/${q.img}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar:+${q.img}'" class="max-h-40 rounded-xl mb-4">` : '';
-                let imgBahasHtml = q.img_pembahasan ? `<img src="assets/img/${q.img_pembahasan}" onerror="this.src='https://placehold.co/600x200/fef08a/854d0e?text=Gambar+Pembahasan'" class="max-h-40 rounded-xl mt-4">` : '';
+                let imgHtml = q.img ? `<img src="${IMAGE_BASE_PATH}${q.img}" onerror="this.src='https://placehold.co/600x300/bae6fd/1e3a8a?text=Gambar:+${q.img}'" class="max-h-40 rounded-xl mb-4">` : '';
+                let imgBahasHtml = q.img_pembahasan ? `<img src="${IMAGE_BASE_PATH}${q.img_pembahasan}" onerror="this.src='https://placehold.co/600x200/fef08a/854d0e?text=Gambar+Pembahasan'" class="max-h-40 rounded-xl mt-4">` : '';
                 
                 let pembahasanTeks = q.pembahasan ? q.pembahasan.replace(/\n/g, '<br>') : '<em>Pembahasan belum tersedia untuk soal ini.</em>';
 
