@@ -159,7 +159,25 @@
         // PENGATURAN GURU
         // ==========================================
         // Ganti teks di bawah dengan Web App URL dari Google Apps Script milik Bos
-        const GOOGLE_SHEETS_URL = "PASTE_URL_GOOGLE_APPS_SCRIPT_DI_SINI"; 
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbymLepX01y5gI-e-KxqUNWXtF_nfXusGXfjsDKcTn3Dv_7pXKI7QsqdkyNwhNI-5DoK-A/exec"; 
+        
+        function kirimNilaiKeDatabase(namaSiswa, paketSoal, nilaiAkhir, arraySoalSalah) {
+          const formData = new URLSearchParams();
+          formData.append('nama', namaSiswa);
+          formData.append('paket', paketSoal);
+          formData.append('nilai', nilaiAkhir);
+  
+      // Jika tidak ada yang salah, tulis keterangan khusus
+          const soalSalahTeks = arraySoalSalah.length > 0 ? arraySoalSalah.join(', ') : 'Benar Semua';
+          formData.append('salah', soalSalahTeks);
+
+          fetch(scriptURL, {
+            method: 'POST',
+        body: formData
+  })
+  .then(response => console.log('Nilai & Evaluasi berhasil dikirim!'))
+  .catch(error => console.error('Error!', error.message));
+}
         
         // Lokasi folder gambar di GitHub:
         // - Gunakan "assets/img/" jika gambar ada di dalam folder assets/img/
